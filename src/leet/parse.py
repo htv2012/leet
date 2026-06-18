@@ -19,6 +19,7 @@ class Details(TypedDict, total=False):
     project_id: str
     dir: str
     code: str
+    fut: str
     test: str
 
 
@@ -155,12 +156,21 @@ def write_test(test_cases: list[dict], buf: TextIO):
     buf.write("    pass\n")
 
 
-def write_script(url: str, test_cases: list[dict], buf: TextIO):
+def write_script(url: str, fut: str, test_cases: list[dict], buf: TextIO):
+    # Prologue
     buf.write('"""\n')
     buf.write(f"{url}\n")
     buf.write('"""\n\n')
     buf.write("import types\n")
     buf.write("\nimport pytest\n")
+    buf.write("\nfrom solution import Solution\n\n")
+
+    # Fixture
+    buf.write("\n@pytest.fixture\n")
+    buf.write("def fut():\n")
+    buf.write("    sol = Solution()\n")
+    buf.write(f"    return sol.{fut}\n\n")
+
     write_test(test_cases, buf)
 
 
@@ -216,7 +226,7 @@ def extract_details(url: str, dump: Optional[str]) -> Details:
     content = soup.text
     test_cases = parse_test_cases(content)
     test_buffer = io.StringIO()
-    write_script(url, test_cases, test_buffer)
+    write_script(url, details["fut"], test_cases, test_buffer)
     details["test"] = test_buffer.getvalue()
 
     return details
