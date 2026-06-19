@@ -39,7 +39,10 @@ def main():
     vscode_dir = project_dir / ".vscode"
     vscode_dir.mkdir()
 
+    # Create the project using uv, we don't need main.py
     create_uv_project(project_dir, details["project_id"])
+    main_script = project_dir / "main.py"
+    main_script.unlink()
 
     # Create the files
     data.write_file(project_dir, "README.md", details["readme"])
