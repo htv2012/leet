@@ -132,36 +132,36 @@ def parse_test_cases(content: str):
     return data_list
 
 
-def write_param(test_case: dict, buf: TextIO):
-    buf.write("        pytest.param(\n")
-    buf.write("            types.SimpleNamespace(\n")
+def write_param(test_case: dict, parameter_names: list[str], buf: TextIO):
+    test_id = test_case.pop("test_id")
+    buf.write("        tc(\n")
+    buf.write(f"           test_id={test_id!r},\n")
     for k, v in test_case.items():
-        if k == "test_id":
-            continue
-        buf.write(f"                {k}={v!r},\n")
-    buf.write("            ),\n")
-    buf.write(f"            id={test_case['test_id']!r},\n")
+        buf.write(f"           {k}={v!r},\n")
     buf.write("        ),\n")
 
 
-def write_test(test_cases: list[dict], buf: TextIO):
+def write_test(test_cases: list[dict], parameter_names: list[str], buf: TextIO):
+    parameters = ", ".join(n for n in parameter_names if n != "test_id")
     buf.write("\n\n@pytest.mark.parametrize(\n")
-    buf.write('    "test_case",\n')
+    buf.write(f'    "{parameters}",\n')
     buf.write("    [\n")
     for test_case in test_cases:
-        write_param(test_case, buf)
+        write_param(test_case, parameter_names, buf)
     buf.write("    ]\n")
     buf.write(")\n")
-    buf.write("def test_solution(fut, test_case):\n")
+
+    buf.write(f"def test_solution(fut, {parameters}):\n")
+    fut_parameters = ", ".join(p for p in parameter_names if p not in {"test_id", "expected"})
+    buf.write(f"#    assert fut({fut_parameters}) == expected\n")
     buf.write("    pass\n")
 
 
-def write_script(url: str, fut: str, test_cases: list[dict], buf: TextIO):
+def write_script(url: str, fut: str, test_cases: list[dict], parameter_names: list[str], buf: TextIO):
     # Prologue
     buf.write('"""\n')
     buf.write(f"{url}\n")
     buf.write('"""\n\n')
-    buf.write("import types\n")
     buf.write("\nimport pytest\n")
     buf.write("\nfrom solution import Solution\n\n")
 
@@ -171,7 +171,18 @@ def write_script(url: str, fut: str, test_cases: list[dict], buf: TextIO):
     buf.write("    sol = Solution()\n")
     buf.write(f"    return sol.{fut}\n\n")
 
-    write_test(test_cases, buf)
+    # Test parameter
+    buf.write("\ndef tc(**kwargs):\n")
+    buf.write('    test_id = kwargs.pop("test_id")\n')
+    buf.write("    return pytest.param(\n")
+    for parameter_name in parameter_names:
+        if parameter_name == "test_id":
+            continue
+        buf.write(f'        kwargs["{parameter_name}"],\n')
+    buf.write('        id=test_id,\n')
+    buf.write("    )\n")
+
+    write_test(test_cases, parameter_names, buf)
 
 
 def extract_details(url: str, dump: Optional[str]) -> Details:
@@ -225,8 +236,9 @@ def extract_details(url: str, dump: Optional[str]) -> Details:
     soup = bs4.BeautifulSoup(question["content"], features="html.parser")
     content = soup.text
     test_cases = parse_test_cases(content)
+    parameter_names = list(test_cases[0])
     test_buffer = io.StringIO()
-    write_script(url, details["fut"], test_cases, test_buffer)
+    write_script(url, details["fut"], test_cases, parameter_names, test_buffer)
     details["test"] = test_buffer.getvalue()
 
     return details
