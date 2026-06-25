@@ -152,12 +152,16 @@ def write_test(test_cases: list[dict], parameter_names: list[str], buf: TextIO):
     buf.write(")\n")
 
     buf.write(f"def test_solution(fut, {parameters}):\n")
-    fut_parameters = ", ".join(p for p in parameter_names if p not in {"test_id", "expected"})
+    fut_parameters = ", ".join(
+        p for p in parameter_names if p not in {"test_id", "expected"}
+    )
     buf.write(f"#    assert fut({fut_parameters}) == expected\n")
     buf.write("    pass\n")
 
 
-def write_script(url: str, fut: str, test_cases: list[dict], parameter_names: list[str], buf: TextIO):
+def write_script(
+    url: str, fut: str, test_cases: list[dict], parameter_names: list[str], buf: TextIO
+):
     # Prologue
     buf.write('"""\n')
     buf.write(f"{url}\n")
@@ -179,7 +183,7 @@ def write_script(url: str, fut: str, test_cases: list[dict], parameter_names: li
         if parameter_name == "test_id":
             continue
         buf.write(f'        kwargs["{parameter_name}"],\n')
-    buf.write('        id=test_id,\n')
+    buf.write("        id=test_id,\n")
     buf.write("    )\n")
 
     write_test(test_cases, parameter_names, buf)
