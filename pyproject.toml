@@ -1,6 +1,6 @@
 [project]
 name = "leet"
-version = "0.2.0"
+version = "0.3.0"
 description = "Leetcode code generation"
 readme = "README.md"
 authors = [
