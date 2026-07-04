@@ -11,7 +11,7 @@ import bs4
 import html2text
 import requests
 
-from .data import QUERY
+from .data import IMPORTS, QUERY
 
 
 class Details(TypedDict, total=False):
@@ -222,6 +222,13 @@ def extract_details(url: str, dump: Optional[str]) -> Details:
     for snippet in question["codeSnippets"]:
         if snippet["lang"] == "Python3":
             code = snippet["code"].strip()
+
+            # Write the imports
+            for name, module in IMPORTS.items():
+                if name in code:
+                    buffer.write(f"from {module} import {name}\n")
+
+            # Write the code
             for line in code.splitlines():
                 buffer.write(f"{line}\n")
                 if line.startswith("    def "):

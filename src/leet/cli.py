@@ -45,6 +45,7 @@ def main():
     main_script.unlink()
 
     # Create the files
+    data.update_pyproject(project_dir)
     data.write_file(project_dir, "README.md", details["readme"])
     data.write_file(project_dir, "Makefile")
     data.write_file(project_dir, "solution.py", details["code"])

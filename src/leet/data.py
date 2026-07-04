@@ -76,6 +76,12 @@ SETTINGS = """{
 }
 """
 
+IMPORTS = {
+    "TreeNode": "tree",
+    "ListNode": "list_node",
+    "Optional": "typing",
+}
+
 
 def get_template(name: str):
     here = pathlib.Path(__file__).parent
@@ -89,3 +95,7 @@ def write_file(root: pathlib.Path, name: str, content: Optional[str] = None):
     target = root / name
     content = content or get_template(name)
     target.write_text(content)
+
+
+def update_pyproject(root: pathlib.Path):
+    write_file(root, "pyproject.toml", PYPROJECT)
