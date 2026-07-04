@@ -98,4 +98,7 @@ def write_file(root: pathlib.Path, name: str, content: Optional[str] = None):
 
 
 def update_pyproject(root: pathlib.Path):
-    write_file(root, "pyproject.toml", PYPROJECT)
+    target = root / "pyproject.toml"
+    assert target.exists()
+    with open(target, "at") as stream:
+        stream.write(PYPROJECT)
