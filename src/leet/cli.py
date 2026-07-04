@@ -8,9 +8,9 @@ from .data import SETTINGS
 from .parse import extract_details
 
 
-def create_uv_project(root, name):
+def create_uv_project(root, name, description):
     os.chdir(root)
-    subprocess.run(["uv", "init", "--name", name])
+    subprocess.run(["uv", "init", "--name", name, "--description", description])
     subprocess.run(["uv", "add", "--dev", "pytest", "ruff", "ty"])
 
 
@@ -40,7 +40,7 @@ def main():
     vscode_dir.mkdir()
 
     # Create the project using uv, we don't need main.py
-    create_uv_project(project_dir, details["project_id"])
+    create_uv_project(project_dir, details["project_id"], details["description"])
     main_script = project_dir / "main.py"
     main_script.unlink()
 

@@ -21,6 +21,7 @@ class Details(TypedDict, total=False):
     code: str
     fut: str
     test: str
+    description: str
 
 
 NOT_PARSED = {}
@@ -208,6 +209,7 @@ def extract_details(url: str, dump: Optional[str]) -> Details:
             json.dump(response_json, stream, indent=4)
     question = response_json["data"]["question"]
 
+    details["description"] = question["title"]
     title = question["title"].lower().replace(" ", "_")
     qid = str(question["questionFrontendId"]).zfill(4)
     details["dir"] = f"leetcode_{qid}_{title}"
