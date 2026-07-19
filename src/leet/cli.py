@@ -6,6 +6,7 @@ import subprocess
 from . import data
 from .data import SETTINGS
 from .parse import extract_details
+from .version import __version__
 
 
 def create_uv_project(root, name, description):
@@ -24,6 +25,9 @@ def main():
         default=pathlib.Path("~/Projects/interview-questions/leetcode").expanduser(),
     )
     parser.add_argument("-d", "--dump")
+    parser.add_argument(
+        "-V", "--version", action="version", version=f"%(prog)s {__version__}"
+    )
     parser.add_argument("url")
     options = parser.parse_args()
 
