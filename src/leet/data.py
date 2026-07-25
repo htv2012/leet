@@ -1,5 +1,4 @@
 import pathlib
-from typing import Optional
 
 QUERY = """query questionData($titleSlug: String!) {
   question(titleSlug: $titleSlug) {
@@ -91,7 +90,7 @@ def get_template(name: str):
     return content
 
 
-def write_file(root: pathlib.Path, name: str, content: Optional[str] = None):
+def write_file(root: pathlib.Path, name: str, content: str | None = None):
     target = root / name
     content = content or get_template(name)
     target.write_text(content)

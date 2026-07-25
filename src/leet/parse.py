@@ -5,7 +5,7 @@ import json
 import re
 import urllib
 import urllib.parse
-from typing import Optional, TextIO, TypedDict
+from typing import TextIO, TypedDict
 
 import bs4
 import html2text
@@ -123,7 +123,7 @@ def parse_test_cases(content: str):
             if ok:
                 test_data.update(parsed)
                 if "expected" in parsed:
-                    data_list.append((test_data))
+                    data_list.append(test_data)
                     test_data = {}
                 break
         else:
@@ -137,8 +137,7 @@ def write_param(test_case: dict, parameter_names: list[str], buf: TextIO):
     test_id = test_case.pop("test_id")
     buf.write("        tc(\n")
     buf.write(f"           test_id={test_id!r},\n")
-    for k, v in test_case.items():
-        buf.write(f"           {k}={v!r},\n")
+    buf.writelines(f"           {k}={v!r},\n" for k, v in test_case.items())
     buf.write("        ),\n")
 
 
@@ -190,7 +189,7 @@ def write_script(
     write_test(test_cases, parameter_names, buf)
 
 
-def extract_details(url: str, dump: Optional[str]) -> Details:
+def extract_details(url: str, dump: str | None) -> Details:
     details = Details()
 
     # Download the leetcode data

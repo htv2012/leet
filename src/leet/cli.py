@@ -1,4 +1,5 @@
 import argparse
+import importlib.metadata
 import os
 import pathlib
 import subprocess
@@ -8,11 +9,20 @@ from .data import SETTINGS
 from .parse import extract_details
 from .version import __version__
 
+CLI_NAME = "leet"
+
+try:
+    __version__ = importlib.metadata.version(CLI_NAME)
+except importlib.metadata.PackageNotFoundError:
+    __version__ = "0.0.0-dev"
+
 
 def create_uv_project(root, name, description):
     os.chdir(root)
-    subprocess.run(["uv", "init", "--name", name, "--description", description])
-    subprocess.run(["uv", "add", "--dev", "pytest", "ruff", "ty"])
+    subprocess.run(
+        ["uv", "init", "--name", name, "--description", description], check=False
+    )
+    subprocess.run(["uv", "add", "--dev", "pytest", "ruff", "ty"], check=False)
 
 
 def main():
@@ -29,6 +39,9 @@ def main():
         "-V", "--version", action="version", version=f"%(prog)s {__version__}"
     )
     parser.add_argument("url")
+    parser.add_argument(
+        "-V", "--version", action="version", version=f"{CLI_NAME} v{__version__}"
+    )
     options = parser.parse_args()
 
     details = extract_details(options.url, options.dump)

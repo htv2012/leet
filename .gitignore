@@ -221,3 +221,6 @@ __marimo__/
 
 # vim
 *.swp
+
+# jupyter
+.ipynb_checkpoints/*
