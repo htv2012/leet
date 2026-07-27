@@ -35,9 +35,6 @@ def main():
         default=pathlib.Path("~/Projects/interview-questions/leetcode").expanduser(),
     )
     parser.add_argument("-d", "--dump")
-    parser.add_argument(
-        "-V", "--version", action="version", version=f"%(prog)s {__version__}"
-    )
     parser.add_argument("url")
     parser.add_argument(
         "-V", "--version", action="version", version=f"{CLI_NAME} v{__version__}"
