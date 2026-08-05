@@ -79,6 +79,8 @@ IMPORTS = {
     "TreeNode": "tree",
     "ListNode": "list_node",
     "Optional": "typing",
+    "List": "typing",
+    "Dict": "typing",
 }
 
 

@@ -4,7 +4,7 @@
 all: test
 
 edit:
-	$(EDITOR) leet
+	gvim -p src/leet/*.py
 
 ### Perform static analysis
 lint:
