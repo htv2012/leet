@@ -1,4 +1,4 @@
-.PHONY: all lab lint py test
+.PHONY: all lab lint py test debug
 
 ### Default target(s)
 all: test
@@ -12,8 +12,11 @@ lint:
 
 ### Run unit tests
 test: lint
-	uv run pytest -s -v
+	uv run pytest -s -vv
 
+### Debug code
+debug:
+	PYTHONBREAKPIONT=pudb.set_trace PYTHONPATH=../../_common uv run pytest -s -vv
 ### Start a Python interpreter
 py:
 	PYTHONPATH=../../_common uv run ipython

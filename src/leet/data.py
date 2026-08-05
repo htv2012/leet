@@ -62,7 +62,7 @@ QUERY = """query questionData($titleSlug: String!) {
 PYPROJECT = """[tool.pytest.ini_options]
 pythonpath=[".", "../../_common"]
 log_cli="true"
-log_level="DEBUG"
+log_level="WARNING"
 """
 
 

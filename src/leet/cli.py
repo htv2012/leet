@@ -22,7 +22,7 @@ def create_uv_project(root, name, description):
     subprocess.run(
         ["uv", "init", "--name", name, "--description", description], check=False
     )
-    subprocess.run(["uv", "add", "--dev", "pytest", "ruff", "ty"], check=False)
+    subprocess.run(["uv", "add", "--dev", "pytest", "ruff", "ty", "pudb"], check=False)
 
 
 def main():
