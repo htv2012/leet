@@ -16,7 +16,7 @@ test: lint
 
 ### Debug code
 debug:
-	PYTHONBREAKPIONT=pudb.set_trace PYTHONPATH=../../_common uv run pytest -s -vv
+	PYTHONBREAKPOINT=pudb.set_trace PYTHONPATH=../../_common uv run pytest -s -vv
 ### Start a Python interpreter
 py:
 	PYTHONPATH=../../_common uv run ipython
