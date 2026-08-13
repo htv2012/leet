@@ -135,7 +135,6 @@ def parse_test_cases(content: str):
 
 
 def write_param(test_case: dict, parameter_names: list[str], buf: TextIO):
-    assert "test_id" not in parameter_names, parameter_names
     buf.write("        pytest.param(")
     parameters = ", ".join(str(repr(test_case[name])) for name in parameter_names)
     buf.write(parameters)
