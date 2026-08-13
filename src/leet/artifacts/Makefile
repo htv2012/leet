@@ -1,7 +1,15 @@
-.PHONY: all lab lint py test debug
+.PHONY: all debug lab lint py test
 
 ### Default target(s)
 all: test
+
+### Debug code
+debug:
+	PYTHONBREAKPOINT=pudb.set_trace PYTHONPATH=../../_common uv run pytest -s -vv
+
+### Start a Jupyter Lab
+lab:
+	PYTHONPATH=../../_common uv run jupyter lab
 
 ### Perform static analysis
 lint:
@@ -9,19 +17,11 @@ lint:
 	uv run ruff format . --quiet
 	uv run ruff check . --fix --quiet
 
-
-### Run unit tests
-test: lint
-	uv run pytest -s -vv
-
-### Debug code
-debug:
-	PYTHONBREAKPOINT=pudb.set_trace PYTHONPATH=../../_common uv run pytest -s -vv
 ### Start a Python interpreter
 py:
 	PYTHONPATH=../../_common uv run ipython
 
-### Start a Jupyter Lab
-lab:
-	PYTHONPATH=../../_common uv run jupyter lab
+### Run unit tests
+test: lint
+	uv run pytest -s -vv
 
