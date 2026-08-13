@@ -33,6 +33,7 @@ def extract_slug(url):
 
 
 def parse_var(text: str):
+    """Parse 'x = 1' to ('x', 1)."""
     key, value = text.split(" = ")
     value = json.loads(value)
     return key, value
@@ -134,15 +135,17 @@ def parse_test_cases(content: str):
 
 
 def write_param(test_case: dict, parameter_names: list[str], buf: TextIO):
-    test_id = test_case.pop("test_id")
-    buf.write("        tc(\n")
-    buf.write(f"           test_id={test_id!r},\n")
-    buf.writelines(f"           {k}={v!r},\n" for k, v in test_case.items())
-    buf.write("        ),\n")
+    buf.write("        pytest.param(")
+    parameters = ", ".join(str(repr(test_case[name])) for name in parameter_names)
+    buf.write(parameters)
+    buf.write(f", id={test_case['test_id']!r}),\n")
 
 
-def write_test(test_cases: list[dict], parameter_names: list[str], buf: TextIO):
-    parameters = ", ".join(n for n in parameter_names if n != "test_id")
+def write_test(
+    test_cases: list[dict], parameter_names: list[str], fut: str, buf: TextIO
+):
+    parameter_names.remove("test_id")
+    parameters = ", ".join(parameter_names)
     buf.write("\n\n@pytest.mark.parametrize(\n")
     buf.write(f'    "{parameters}",\n')
     buf.write("    [\n")
@@ -151,12 +154,10 @@ def write_test(test_cases: list[dict], parameter_names: list[str], buf: TextIO):
     buf.write("    ]\n")
     buf.write(")\n")
 
-    buf.write(f"def test_solution(fut, {parameters}):\n")
-    fut_parameters = ", ".join(
-        p for p in parameter_names if p not in {"test_id", "expected"}
-    )
-    buf.write(f"#    assert fut({fut_parameters}) == expected\n")
-    buf.write("    pass\n")
+    buf.write(f"def test_solution({parameters}):\n")
+    fut_parameters = ", ".join(p for p in parameter_names if p != "expected")
+    buf.write("    sol = Solution()\n")
+    buf.write(f"    assert sol.{fut}({fut_parameters}) == expected\n")
 
 
 def write_script(
@@ -169,24 +170,7 @@ def write_script(
     buf.write("\nimport pytest\n")
     buf.write("\nfrom solution import Solution\n\n")
 
-    # Fixture
-    buf.write("\n@pytest.fixture\n")
-    buf.write("def fut():\n")
-    buf.write("    sol = Solution()\n")
-    buf.write(f"    return sol.{fut}\n\n")
-
-    # Test parameter
-    buf.write("\ndef tc(**kwargs):\n")
-    buf.write('    test_id = kwargs.pop("test_id")\n')
-    buf.write("    return pytest.param(\n")
-    for parameter_name in parameter_names:
-        if parameter_name == "test_id":
-            continue
-        buf.write(f'        kwargs["{parameter_name}"],\n')
-    buf.write("        id=test_id,\n")
-    buf.write("    )\n")
-
-    write_test(test_cases, parameter_names, buf)
+    write_test(test_cases, parameter_names, fut, buf)
 
 
 def extract_details(url: str, dump: str | None) -> Details:
@@ -210,9 +194,9 @@ def extract_details(url: str, dump: str | None) -> Details:
 
     details["description"] = question["title"]
     title = question["title"].lower().replace(" ", "_")
-    qid = str(question["questionFrontendId"]).zfill(4)
-    details["dir"] = f"leetcode_{qid}_{title}"
-    details["project_id"] = f"leetcode-{qid}"
+    problem_number_str = str(question["questionFrontendId"]).zfill(4)
+    details["dir"] = f"leetcode_{problem_number_str}_{title}"
+    details["project_id"] = f"leetcode-{problem_number_str}"
 
     converter = html2text.HTML2Text()
     details["readme"] = (
