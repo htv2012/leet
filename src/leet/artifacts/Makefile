@@ -1,4 +1,9 @@
-.PHONY: all debug lab lint py test
+PLATFORM := $(shell uname -s)
+ifeq ($(PLATFORM),Linux)
+	VIM_FLAGS := -p
+endif
+
+.PHONY: all debug edit lab lint py test
 
 ### Default target(s)
 all: test
@@ -6,6 +11,10 @@ all: test
 ### Debug code
 debug:
 	PYTHONBREAKPOINT=pudb.set_trace PYTHONPATH=../../_common uv run pytest -s -vv
+
+### Edit files
+edit:
+	gvim $(VIM_FLAGS) Makefile pyproject.toml *.py
 
 ### Start a Jupyter Lab
 lab:
