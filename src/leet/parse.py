@@ -45,7 +45,10 @@ def parse_output(lines: collections.deque):
         line = line.removeprefix("Output: ")
         line = line.strip()
         line = line.replace("'", '"')
-        output = json.loads(line)
+        try:
+            output = json.loads(line)
+        except json.decoder.JSONDecodeError:
+            output = line.strip()
         return True, {"expected": output}
     lines.appendleft(line)
     return False, {}
